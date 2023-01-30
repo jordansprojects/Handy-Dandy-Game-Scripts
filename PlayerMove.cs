@@ -9,7 +9,7 @@ public class PlayerMove : MonoBehaviour
     //give rigidbody component in the editor to the game objects that need the physics
     Rigidbody playerRigidbody;
 
-    public float movespeed = 1.0f;
+    public float movespeed = 15.0f;
 
     //always have a check so that you can turn on/off the debug info from different scripts easily
     public bool printDebugInfo = false;
@@ -30,28 +30,28 @@ public class PlayerMove : MonoBehaviour
             if(printDebugInfo)
                 Debug.Log("User pressed W, go forward");
             //Apply a force to this Rigidbody in direction of this GameObjects up axis
-            playerRigidbody.AddForce(movespeed,1f,0f);
+            playerRigidbody.AddForce(movespeed,0f,0f);
         }
         if (Input.GetKey(KeyCode.S))
         {
             if (printDebugInfo)
                 Debug.Log("User pressed S, go backward");
             //Apply a force to this Rigidbody in direction of this GameObjects up axis
-            playerRigidbody.AddForce(-movespeed, 1f, 0f);
+            playerRigidbody.AddForce(-movespeed, 0f, 0f);
         }
         if (Input.GetKey(KeyCode.A))
         {
             if (printDebugInfo)
                 Debug.Log("User pressed A, go left");
             //Apply a force to this Rigidbody in direction of this GameObjects up axis
-            playerRigidbody.AddForce(0f, 1f, movespeed);
+            playerRigidbody.AddForce(0f, 0f, movespeed);
         }
         if (Input.GetKey(KeyCode.D))
         {
             if (printDebugInfo)
                 Debug.Log("User pressed D");
             //Apply a force to this Rigidbody in direction of this GameObjects up axis
-            playerRigidbody.AddForce(0f, 1f, -movespeed);
+            playerRigidbody.AddForce(0f, 0f, -movespeed);
         }
     }
     
