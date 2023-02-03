@@ -15,7 +15,7 @@ public class ObjTrigger : MonoBehaviour
     // This function is called when another collider hits this object's collider
     void OnTriggerEnter(Collider other)
     {
-	float scale = 5.0f;
+	float scale = 5f;
         if (other.name == "Player" && !hitOnce)
         {
             string myname = gameObject.name;
@@ -23,8 +23,10 @@ public class ObjTrigger : MonoBehaviour
                 Debug.Log("Player hits me. My name is: " + myname);
 
             //your code here. Let the object do something when it is hit by the player
-	    gameObject.transform.localScale = new Vector3(scale,scale,scale);
-            hitOnce = false;
+	        transform.localScale = new Vector3(transform.localScale.x*scale,transform.localScale.y*scale,transform.localScale.z*scale);
+           //line below was in Jeffs but i did not find it necessary for mine
+           // transform.position = transform.position + new Vector3(4,0,3);           
+            hitOnce = false; 
         }
     }
 }
