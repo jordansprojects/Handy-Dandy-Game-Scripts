@@ -34,17 +34,34 @@ public class Goalie : MonoBehaviour
     //goalie alert state variables
     public float exitAltertStateDistance = 20.0f; 
     private float alertSpeed = 0.5f;
+    
 
 
+    //Moving back and forth Variables
+    public Transform stopperLeft, stopperRight;
+    float MIN_X, MAX_X;
+    bool goingLeft = true;
+
+    //Animation Variables
+    private bool hasAnimations = true; //using this as default for now
+    int coroutineCount = 0; // this protects against starting too many coroutines
+    int MAX_ROUTINES = 10;
 //
     bool isGameStarted = false; 
     // Start is called before the first frame update
     void Start()
     {
-        anim = mesh.GetComponent<Animator>();
+        if( mesh.GetComponent<Animator>() != null){
+            anim = mesh.GetComponent<Animator>();
+            hasAnimations = true;
+        }
         goalieState = State.idle;
-        StartCoroutine(guard());
-    }
+        isGameStarted = true;
+        MAX_X = stopperLeft.position.x;
+        MIN_X = stopperRight.position.x;
+        
+
+      }
 
     // Update is called once per frame
     void Update()
@@ -59,7 +76,9 @@ public class Goalie : MonoBehaviour
                 if (isGameStarted)
                 {
                     goalieState = State.ready;
-                    anim.SetBool("isReady", true);
+                    if(hasAnimations){ 
+                        anim.SetBool("isReady", true);
+                    }
                 }
 
                 break;
@@ -74,22 +93,42 @@ public class Goalie : MonoBehaviour
                 break;
             case State.alert:
                  Debug.Log("DEBUG: In Alert");
-                 anim.SetBool("isAlert",true);
+                
+                 if(coroutineCount < MAX_ROUTINES ){
+                    coroutineCount++;
+                    if(goingLeft){
+                        StopCoroutine(moveRight());
+                        
+                        StartCoroutine(moveLeft());
+                    }else{
+                        StopCoroutine(moveLeft());
+                        
+                        StartCoroutine(moveRight());
+                    }
+                 }
 
-                 mesh.transform.LookAt(player.transform);
+                 if(hasAnimations) {
+                    anim.SetBool("isAlert",true);
+                    anim.SetBool("goLeft", goingLeft);
+                 }
+
+                 
 
                 //change state back to ready if you leave the distance
                 if(distance > exitAltertStateDistance){
                     goalieState = State.ready;
-                    isAlert = false;
+                    coroutineCount = 0;
+                    if(hasAnimations) {
+                        anim.SetBool("isAlert", false);
+                        anim.SetBool("isReady", true);
+                        StopCoroutine(moveLeft());
+                        StopCoroutine(moveRight());
+                         
+                    }
                     
                 }
-//
                 else{
-                   isAlert=true;
-                   guard();
                 }
-                anim.SetBool("isAlert", isAlert);
                 break;
         }
     }
@@ -100,25 +139,44 @@ public class Goalie : MonoBehaviour
         Debug.Log("DEBUG: Timer done!");
     }
 
-    void  guard(){
-        Debug.Log("DEBUG: in guard!");
-        float difference = player.transform.position.x- mesh.transform.position.x; 
-        float absolute_difference = Mathf.Abs(difference);
-        if(absolute_difference >= 0.5 ){
-                    Vector3 direction = ((player.transform.position - mesh.transform.position).normalized);
-                    if(difference > 0 ) {
-                        anim.SetBool("walkLeft", false);
-                    }else{
-                        anim.SetBool("walkLeft", true);
-                    }
 
-        mesh.transform.position = new Vector3(mesh.transform.position.x + direction.x, mesh.transform.position.y,mesh.transform.position.z);
-        
-        }
+   public IEnumerator moveLeft(){
+     Debug.Log("In moveLeft");
+       while(mesh.transform.position.x > MIN_X){
+           Debug.Log("moving left");
+            mesh.transform.position = new Vector3(mesh.transform.position.x - 0.03f , mesh.transform.position.y, mesh.transform.position.z);
+            yield return new  WaitForSeconds(0.1f);
+       }
+       goingLeft = false;
+       coroutineCount = 0;
+    }
+
+   public IEnumerator moveRight(){
+      Debug.Log("In moveRight");
+     if(hasAnimations){
+                        anim.SetBool("goLeft",false);
+             }
+       while(mesh.transform.position.x < MAX_X){
+        Debug.Log("moving right");
+            mesh.transform.position = new Vector3(mesh.transform.position.x + 0.03f , mesh.transform.position.y, mesh.transform.position.z);
+            yield return new  WaitForSeconds(0.1f);
+       }
+       goingLeft = true;
+       coroutineCount = 0;
     }
 
 
 
-
+// function that makes goalie stand in front of the goal, right now i am not using it! but it works for what it is 
+    void  guard(){
+    
+        float difference = player.transform.position.x- mesh.transform.position.x; 
+        float absolute_difference = Mathf.Abs(difference);
+        if(absolute_difference >= 0.5 ){
+         Vector3 direction = ((player.transform.position - mesh.transform.position).normalized);
+         mesh.transform.position = new Vector3(mesh.transform.position.x + direction.x, mesh.transform.position.y,mesh.transform.position.z);
+        }
+        
+    }
 
 } // end of class
