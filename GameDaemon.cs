@@ -1,3 +1,8 @@
+/***********************
+* Primary Game Manager Script from OnTheFarm the VR Game
+*
+**************************/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
