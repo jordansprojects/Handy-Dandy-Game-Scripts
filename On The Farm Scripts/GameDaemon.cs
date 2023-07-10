@@ -12,7 +12,7 @@ public class GameDaemon: MonoBehaviour{
 
 
 	// Refence to ShopManager to track player currency
-	public ShopManager sm;
+	[SerializeField] private ShopManager sm;
 
 	public UnityEvent onNightSceneLoaded;
 	public UnityEvent beforeNightSceneLoaded;
@@ -46,11 +46,11 @@ public class GameDaemon: MonoBehaviour{
 	// set up in the editor.
 	// For example, if MudDayTime is at index 7, MudPigNightTime must also be at index 7
 	// Otherwise, in scene transition animal types will be mismatched  
-	public GameObject[] dayAnimals;
-	public GameObject[] nightAnimals;
+	[SerializeField] private GameObject[] dayAnimals;
+	[SerializeField] private GameObject[] nightAnimals;
 
 	// Monster prefab list for spawning monsters
-	public GameObject[] monsters;
+	[SerializeField] private GameObject[] monsters;
 	
 
 	// Lists to keep track of Animals in the game
