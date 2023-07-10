@@ -6,6 +6,7 @@ using TMPro;
 using System;
 using EmeraldAI;
 using System.Linq; // for ToList() method
+[System.Serializable]
 public class ShopManager : MonoBehaviour
 {
   public int coins;
