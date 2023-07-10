@@ -41,23 +41,22 @@ public class PlayerDeath : MonoBehaviour
     }
     public void OnDeath()
     {
-        stopAllAudio();
+	    stopAllAudio();
 	    rGrabber.TryRelease();
-        lGrabber.TryRelease();
+	    lGrabber.TryRelease();
 
-      //  GetComponent<CharacterController>().enabled = false;//edit
-        // Deactivate all items with environment tag
-			GameObject [] env = GameObject.FindGameObjectsWithTag("Environment");
-			foreach (GameObject thing in env){
-				thing.SetActive(false);
-			}
+	    // Deactivate all items with environment tag
+	    GameObject [] env = GameObject.FindGameObjectsWithTag("Environment");
+	    foreach (GameObject thing in env){
+		    thing.SetActive(false);
+	    }
 
 
-        Death();
+	    Death();
 
     }
 
-    
+
 
     public IEnumerator GotHit()
     {
@@ -77,6 +76,7 @@ public class PlayerDeath : MonoBehaviour
         
         // Play death scene 
         SceneManager.LoadScene(deathScene);
-        playerOrientation.rotation = Quaternion.Euler(new Vector3(0,0,0));
+    	// Rotate player to face forward
+    	playerOrientation.rotation = Quaternion.Euler(new Vector3(0,0,0));
     }
 }
