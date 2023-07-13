@@ -11,7 +11,9 @@ using System; //for System.Math
 public class GameDaemon: MonoBehaviour{
 
 
-	public ShopManager sm;
+	// Refence to ShopManager to track player currency
+	[SerializeField] private ShopManager sm;
+
 	public UnityEvent onNightSceneLoaded;
 	public UnityEvent beforeNightSceneLoaded;
 
@@ -44,11 +46,11 @@ public class GameDaemon: MonoBehaviour{
 	// set up in the editor.
 	// For example, if MudDayTime is at index 7, MudPigNightTime must also be at index 7
 	// Otherwise, in scene transition animal types will be mismatched  
-	public GameObject[] dayAnimals;
-	public GameObject[] nightAnimals;
+	[SerializeField] private GameObject[] dayAnimals;
+	[SerializeField] private GameObject[] nightAnimals;
 
 	// Monster prefab list for spawning monsters
-	public GameObject[] monsters;
+	[SerializeField] private GameObject[] monsters;
 	
 
 	// Lists to keep track of Animals in the game
@@ -63,13 +65,13 @@ public class GameDaemon: MonoBehaviour{
 
 
 
-	// lists for storing AIs in the world
+	// Lists for storing AIs in the world
 	List<GameObject> totalAIs;
 	List<GameObject> enemies;
 	List<GameObject> allies;
 
 
-	//Refernse to storeui so the canvas can be hidden during the night
+	//Refernce to storeui so the canvas can be hidden during the night
 	public GameObject StoreUI;
 
 	// Coroutine references for starting and stopping
@@ -385,7 +387,7 @@ public class GameDaemon: MonoBehaviour{
 
 		//  scavanger monster is at index 0
 		//  bug is at index at index 1
-			//	tanky monster is at index 2
+		//	tanky monster is at index 2
 		
 		//This determines the max index from which a monster can be selected
 		int max_index = 0;
