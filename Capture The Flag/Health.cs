@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 /* Handles character health (player and AI) and damage taking interactions */
 
 
@@ -10,7 +11,7 @@ public class Health : MonoBehaviour
 
 
 	/* health variables */
-	float health;
+	public float health;
 	float maxHealth = 100;
 	[SerializeField] Image healthBar;
 
@@ -23,7 +24,7 @@ public class Health : MonoBehaviour
 	private bool startBlinking = false;
 	SpriteRenderer spr;
 	[SerializeField] Color hurtColor;
-	
+	[SerializeField] UnityEvent deathEvent;
 
 	/* hit by projectile variables */
 	 SpriteRenderer projectileSR;
@@ -91,6 +92,10 @@ public class Health : MonoBehaviour
 			Destroy(col.gameObject, 1f);
 			TakeDamage(10);
 		}
+		if( col.gameObject.tag == "OrbProjectile" && gameObject.tag == "AI"){
+		 // NPCs experience healing from aly projectiles, including their own
+		  health+= 2f;
+		}
 
 	
 
@@ -128,6 +133,10 @@ public class Health : MonoBehaviour
 
 	private void TakeDamage(int dmg){
 		health-=dmg;
+		if ( health <= 0){
+			// invoke death event if dead
+			deathEvent.Invoke();
+		}
 	}
 
 

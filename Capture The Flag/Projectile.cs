@@ -7,10 +7,12 @@ public class Projectile : MonoBehaviour
 
     float deathTimer = 0f;
     float timeToDie = 3f;
+    Rigidbody2D rb;
     // Start is called before the first frame update
     void Start()
     {
 	    deathTimer = 0;
+	    rb = GetComponent<Rigidbody2D>();
         
     }
 
@@ -26,6 +28,12 @@ public class Projectile : MonoBehaviour
 
 	    /* destroy projectile after certain amount of time */
   	    if( deathTimer >= timeToDie){
+	    	Destroy(gameObject);
+	    }
+
+	    float velocityMagnitude = rb.velocity.sqrMagnitude;
+	    velocityMagnitude  = (float)System.Math.Round(velocityMagnitude, 2);
+	    if  ( velocityMagnitude < 0.5f){
 	    	Destroy(gameObject);
 	    }
     }

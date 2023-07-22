@@ -13,7 +13,14 @@ public class EnemyNPC : MonoBehaviour
 	[SerializeField] private float shootMaxTime;
 	[SerializeField] private float shootMinTime;
 	[SerializeField] private float shootInterval;
-	[SerializeField] private AudioSource shootSoundEffect; 
+	[SerializeField] private AudioSource shootSoundEffect;
+
+
+
+	/* death variables */
+	[SerializeField] AudioSource deathSound;
+	[SerializeField] float soundStart;
+	[SerializeField] float soundEnd;
 
 	/* movement and animation variables */
 	private Animator animator;
@@ -24,8 +31,17 @@ public class EnemyNPC : MonoBehaviour
 	[SerializeField] float minDistance = 2; // The desired distance from the player
 	private GameObject [] NPCs;
 
+	[SerializeField] List<Transform> wayPointLimits;
+
 	[SerializeField] float avoidFactor ; // Boids algorithm separation variable to keep enemies from being too close
-	private Vector2 spawnPointLocalPosition;	
+	private Vector2 spawnPointLocalPosition;
+
+	/* convex hull navigation variables */
+	[SerializeField] bool usesConvexHullNavigation = false;	
+	[SerializeField] GrahamScanner grahamScanner;
+	List<Vector2> convexHull;
+	[SerializeField] float wayPointStopDistance = 0.1f; //may want this smaller or larger depending on the size of the convex hull
+	Vector2 wayPoint;
 
 	// Start is called before the first frame update
 	void Start(){
@@ -36,6 +52,12 @@ public class EnemyNPC : MonoBehaviour
 		NPCs = GameObject.FindGameObjectsWithTag("AI");
 		spawnPointLocalPosition = spawnPoint.localPosition;
 		shootTimer = 0;
+
+		if (usesConvexHullNavigation){
+			// calculate generate convex hull
+			convexHull = grahamScanner.GrahamScan(wayPointLimits);
+			GenerateWayPoint(); // set initial waypoint
+		}
 
 		//init the first shoot interval
 		shootInterval = Random.Range(shootMinTime, shootMaxTime);
@@ -48,11 +70,25 @@ public class EnemyNPC : MonoBehaviour
 		if (shootTimer > shootInterval){
 			ShootProjectile();
 		}	
+		
 	}
 
 	void FixedUpdate(){
-		FollowPlayerTarget();
+		if(!usesConvexHullNavigation){
+			FollowPlayerTarget();
+		}else{
+			FollowGeneratedWayPoints();
+		}
 		SpreadEnemies();
+	}
+
+	public void Death(){
+		// prepare to play funny sound
+		deathSound.time = soundStart;
+		deathSound.Play();
+		deathSound.SetScheduledEndTime(AudioSettings.dspTime+(soundEnd - soundStart));
+		// destroy object
+		Destroy(gameObject);
 	}
 
 	private void FollowPlayerTarget(){
@@ -61,15 +97,18 @@ public class EnemyNPC : MonoBehaviour
 		if (Vector2.Distance(target.position, transform.position) > minDistance){
 			// move if not too close
 			rb.velocity = direction * moveSpeed *Time.deltaTime;
-			// Calculate the magnitude of movement to determine the animation speed
-			float movementSpeed = rb.velocity.magnitude;
 		}else{
 			// dont move, and shoot at player
 			rb.velocity = Vector2.zero;
 
 		}
 
-		// Flip the sprite based on relative position to target
+		WatchPlayer();	
+	}
+
+
+	public void WatchPlayer(){
+	// Flip the sprite based on relative position to target
 		if (transform.position.x  > target.position.x)
 		{
 			// Facing left
@@ -82,9 +121,42 @@ public class EnemyNPC : MonoBehaviour
 			spr.flipX = false;
 			spawnPoint.localPosition = spawnPointLocalPosition;
 
-
-
 		}
+	
+	}
+
+	public void FollowGeneratedWayPoints(){
+		if ( Vector2.Distance(transform.position, wayPoint ) <= wayPointStopDistance){
+			GenerateWayPoint();
+		}else{
+			Vector2 direction = (wayPoint - (Vector2)transform.position).normalized;
+			rb.velocity = direction * moveSpeed *Time.deltaTime;
+		}
+		WatchPlayer(); // stay turned towards the player regardless
+
+	}
+
+	void GenerateWayPoint(){
+		// Calculate the bounding box of the convex hull
+		Vector2 minPoint = convexHull[0];
+		Vector2 maxPoint = convexHull[0];
+		foreach (Vector2 point in convexHull)
+		{
+			minPoint = Vector2.Min(minPoint, point);
+			maxPoint = Vector2.Max(maxPoint, point);
+		}
+
+		Vector2 randomPoint = new Vector2(Random.Range(minPoint.x, maxPoint.x), Random.Range(minPoint.y, maxPoint.y));
+		while (!grahamScanner.IsPointInConvexHull(randomPoint, convexHull))
+		{
+			randomPoint = new Vector2(Random.Range(minPoint.x, maxPoint.x), Random.Range(minPoint.y, maxPoint.y));
+		}
+
+
+		wayPoint = randomPoint;
+
+
+
 	}
 
 	private void ShootProjectile(){
@@ -117,9 +189,10 @@ public class EnemyNPC : MonoBehaviour
 		float close_dx = 0;
 		float close_dy = 0;
 		foreach (GameObject npc in NPCs){
+			if (npc != null){
 			close_dx += transform.position.x -  npc.transform.position.x;
 			close_dy += transform.position.y - npc.transform.position.y;
-		
+			}
 		}
 		// update velocity
 		Vector2 prevVelocity = rb.velocity;

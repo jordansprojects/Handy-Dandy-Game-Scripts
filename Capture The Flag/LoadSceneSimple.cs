@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LoadScene : MonoBehaviour
+public class LoadSceneSimple : MonoBehaviour
 {
     [SerializeField] private string sceneName;
-    AudioSource audioSrc;
- 
+    private static LoadSceneSimple instance;
+    [SerializeField] private float delayTime = 1.0f; 
    // Start is called before the first frame update
-    void Start()
-    {
-	audioSrc = GameObject.FindGameObjectWithTag("SoundMaker").GetComponent<AudioSource>();
+    void Start(){
+	
         
     }
 
@@ -23,10 +22,17 @@ public class LoadScene : MonoBehaviour
 
 
    void OnSceneLoaded( Scene scene, LoadSceneMode mode){
-	audioSrc.Play();
    }
-   
+ 
 
+  IEnumerator DelayBeforeLoad(){
+  	yield return new WaitForSeconds(delayTime);
+	OpenScene();
+  } 
+
+  public void OpenSceneWaitWithCoroutine(){
+  	StartCoroutine(DelayBeforeLoad());
+  }
 
    public void OpenScene(){
 	// unsubscribe to current scene
@@ -38,4 +44,6 @@ public class LoadScene : MonoBehaviour
 	// subscribe to current scene
 	SceneManager.sceneLoaded+= OnSceneLoaded;
     }
+
+
 }
