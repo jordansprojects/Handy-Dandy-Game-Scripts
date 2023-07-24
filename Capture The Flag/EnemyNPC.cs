@@ -160,7 +160,6 @@ public class EnemyNPC : MonoBehaviour
 	}
 
 	private void ShootProjectile(){
-		Debug.Log("shooting projectile");
 		shootSoundEffect.Play();
 		// Create a new projectile instance
 		GameObject newProjectile = Instantiate(projectilePrefab, spawnPoint.position, Quaternion.identity);

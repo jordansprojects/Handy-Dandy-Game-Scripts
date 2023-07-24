@@ -9,6 +9,7 @@ public class SpawnCollectables : MonoBehaviour
 	List<Vector2> convexHull;
 	[SerializeField] GameObject collectablePrefab;
 	[SerializeField] UnityEvent spawningCompleteEvent;
+	[SerializeField] bool spawnWithConvexHull = false;
 
 	[SerializeField] GrahamScanner grahamScanner; /* to generate convex hull */
 	// Start is called before the first frame update
@@ -17,7 +18,9 @@ public class SpawnCollectables : MonoBehaviour
 			Debug.LogWarning("Need at least 3 points to calculate the 2D region.");
 			return;
 		}
-		convexHull = grahamScanner.GrahamScan(limits);
+		if (spawnWithConvexHull){
+			convexHull = grahamScanner.GrahamScan(limits);
+		}
 		Spawn();
 	}
 
@@ -28,10 +31,19 @@ public class SpawnCollectables : MonoBehaviour
 	}
 
 	void Spawn(){
+			List<Vector2> points;	
+			if ( spawnWithConvexHull){
+				points = convexHull;
+			}else{
+				points = new List<Vector2>();
+				for ( int i = 0; i < limits.Count; i++){
+					points.Add(new Vector2(limits[i].position.x, limits[i].position.y));
+				}
+			}
 			// Calculate the bounding box of the convex hull
-			Vector2 minPoint = convexHull[0];
-			Vector2 maxPoint = convexHull[0];
-			foreach (Vector2 point in convexHull)
+			Vector2 minPoint = points[0];
+			Vector2 maxPoint = points[0];
+			foreach (Vector2 point in points)
 			{
 				minPoint = Vector2.Min(minPoint, point);
 				maxPoint = Vector2.Max(maxPoint, point);
@@ -40,7 +52,7 @@ public class SpawnCollectables : MonoBehaviour
 			for (int i = 0; i < spawnCount; i++)
 			{
 				Vector2 randomPoint = new Vector2(Random.Range(minPoint.x, maxPoint.x), Random.Range(minPoint.y, maxPoint.y));
-				while (!grahamScanner.IsPointInConvexHull(randomPoint, convexHull))
+				while (!grahamScanner.IsPointInConvexHull(randomPoint, points))
 				{
 					randomPoint = new Vector2(Random.Range(minPoint.x, maxPoint.x), Random.Range(minPoint.y, maxPoint.y));
 				}

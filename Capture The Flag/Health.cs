@@ -38,12 +38,19 @@ public class Health : MonoBehaviour
 	[SerializeField] string projectileTag = "Projectile";
 	[SerializeField] AudioSource impactNoise; 
 	[SerializeField] AudioSource yelpNoise;
+	[SerializeField] AudioSource twinkleNoise;
 	[SerializeField] float soundDelay  = 0;
+
+	ScoreTracker tracker;
 
 	// Start is called before the first frame update
 	void Start(){
 		spr=GetComponent<SpriteRenderer>();
 		health = maxHealth;
+		
+		if (GameObject.FindGameObjectWithTag("Score Tracker") != null){
+			tracker = GameObject.FindGameObjectWithTag("Score Tracker").GetComponent<ScoreTracker>(); 
+		}
 	}
 
 	// Update is called once per frame
@@ -57,7 +64,11 @@ public class Health : MonoBehaviour
 		healthBar.fillAmount = Mathf.Clamp(health / maxHealth, 0, 1);
 	}
 
+	public void Heal(float healAmount){
+		health+=healAmount;
+		twinkleNoise.Play();
 
+	}
 
 
 	private void changeColor(){
@@ -131,9 +142,12 @@ public class Health : MonoBehaviour
 	}
 
 
-	private void TakeDamage(int dmg){
+	public void TakeDamage(int dmg){
 		health-=dmg;
 		if ( health <= 0){
+			if (gameObject.tag == "AI" && tracker != null){
+				tracker.kills++;
+			}
 			// invoke death event if dead
 			deathEvent.Invoke();
 		}

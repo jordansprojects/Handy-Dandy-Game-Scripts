@@ -7,7 +7,7 @@ public class LoadUIScene : MonoBehaviour
 {
     [SerializeField] private string sceneName;
     AudioSource audioSrc;
- 
+    private static LoadUIScene instance; 
    // Start is called before the first frame update
     void Start(){
 	audioSrc = GameObject.FindGameObjectWithTag("SoundMaker").GetComponent<AudioSource>();
@@ -43,4 +43,14 @@ public class LoadUIScene : MonoBehaviour
 	// subscribe to current scene
 	SceneManager.sceneLoaded+= OnSceneLoaded;
     }
+
+  void Awake(){ 
+	DontDestroyOnLoad (this);		
+	if (instance == null) {
+		instance = this;
+	} else {
+		Destroy(gameObject);
+	}
+}
+
 }

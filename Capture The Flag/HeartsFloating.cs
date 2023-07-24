@@ -16,7 +16,7 @@ public class HeartsFloating : MonoBehaviour
     void Start(){
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // Update the position of the hearts in a circular motion around the character's head
         for (int i = 0; i < hearts.Count ; i++)

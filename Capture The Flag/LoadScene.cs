@@ -5,13 +5,16 @@ using UnityEngine.SceneManagement;
 
 public class LoadScene : MonoBehaviour
 {
+    private AsyncOperation _asyncOp;
     [SerializeField] private string sceneName;
     AudioSource audioSrc;
  
    // Start is called before the first frame update
     void Start()
     {
-	audioSrc = GameObject.FindGameObjectWithTag("SoundMaker").GetComponent<AudioSource>();
+	if (GameObject.FindGameObjectWithTag("SoundMaker") != null){
+		audioSrc = GameObject.FindGameObjectWithTag("SoundMaker").GetComponent<AudioSource>();
+	}
         
     }
 
@@ -23,10 +26,13 @@ public class LoadScene : MonoBehaviour
 
 
    void OnSceneLoaded( Scene scene, LoadSceneMode mode){
-	audioSrc.Play();
+	if (audioSrc != null){
+	   audioSrc.Play();
+	}
    }
-   
+  
 
+ 
 
    public void OpenScene(){
 	// unsubscribe to current scene
